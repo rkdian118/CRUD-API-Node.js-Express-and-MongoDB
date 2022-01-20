@@ -7,19 +7,21 @@ const {
     google
 } = require('googleapis');
 const fs = require('fs');
-var moment = require("moment")
-
+var moment = require("moment");
+// Configuring the google
+const dbConfig = require('./config/database.config.js');
 var DATE = moment().format("D");
-const DB_NAME = "test";
+const DB_NAME = dbConfig.db_name;
 const ARCHIVE_PATH = path.join(__dirname, '../public/' + DATE + '.gzip');
-const ID_OF_THE_FOLDER = '1WBIN8np6rqc0O80wOpSCB7dG6K9Y26IW';
+
+const ID_OF_THE_FOLDER = dbConfig.folder_id;
 const pageToken = null;
-const CLIENT_ID = '927800886891-7g17hfifca7m6t3kvv80dsb4652vnacm.apps.googleusercontent.com'
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
+const CLIENT_ID = dbConfig.client_id;
+const CLIENT_SECRET = dbConfig.client_secret;
+const REDIRECT_URI = dbConfig.redrict_url;
 
 //refresh token
-const REFRESH_TOKEN = '1//04w_6eQSc63t_CgYIARAAGAQSNwF-L9Ir0pSHgSeth7WMxAEN5aomq9NKGXmOjss9wF4X8oI5pXVkYqD8FT3cmWCgr0RzX1VMkMA';
+const REFRESH_TOKEN = dbConfig.refresh_token;
 
 //intialize auth client
 const oauth2Client = new google.auth.OAuth2(
@@ -40,7 +42,11 @@ const drive = google.drive({
 });
 
 
-cron.schedule('*/5 * * * * *', () => uploadFile());
+cron.schedule('0 0 * * *', () => uploadFile());
+cron.schedule('10 0 * * *', () => createFile());
+
+cron.schedule('* * * * *', () => uploadFile());
+cron.schedule('*/35 * * * * *', () => createFile());
 
 //function to upload the file
 const uploadFile = async () => {
@@ -62,8 +68,49 @@ const uploadFile = async () => {
         //     }
         //   });
 
-        const child = await spawn('C:/Program Files/MongoDB/Tools/100/bin/mongodump', [
-            `--db=${DB_NAME}`,
+        const listed = await drive.files.list({
+            q: `'${ID_OF_THE_FOLDER}' in parents and trashed=false`,
+            fields: 'nextPageToken, files(id, name, mimeType)',
+            spaces: 'drive',
+            pageToken: pageToken
+        });
+        let obj = listed.data.files.find(o => o.name === DATE + '.gzip');
+
+        if (!obj) {
+            const created = await drive.files.create({
+                resource: {
+                    name: DATE + '.gzip',
+                    parents: [ID_OF_THE_FOLDER]
+                },
+                media: {
+                    mimeType: 'trading-app/gzip',
+                    body: fs.createReadStream(ARCHIVE_PATH),
+                },
+            });
+            console.log('creates ', created.data);
+        } else {
+            let updated = await drive.files.update({
+                fileId: obj.id,
+                resource: {
+                    name: DATE + '.gzip',
+                },
+                media: {
+                    mimeType: 'trading-app/gzip',
+                    body: fs.createReadStream(ARCHIVE_PATH),
+                }
+            })
+            console.log('updates ', updated.data);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+//function to upload the file
+const createFile = async () => {
+    try {
+        const child = await spawn('../mongodump.exe', [
+            `--uri=mongodb+srv://dev-user:dxJyqOFYtg6rcwEA@cluster0.qffiq.mongodb.net/trading-app`,
             `--archive=${ARCHIVE_PATH}`,
             '--gzip'
         ]);
@@ -89,40 +136,6 @@ const uploadFile = async () => {
             else console.log('backup done');
         });
 
-
-        const listed = await drive.files.list({
-            q: `'${ID_OF_THE_FOLDER}' in parents and trashed=false`,
-            fields: 'nextPageToken, files(id, name, mimeType)',
-            spaces: 'drive',
-            pageToken: pageToken
-        });
-        let obj = listed.data.files.find(o => o.name === DATE + '.gzip');
-
-        if (!obj) {
-            const created = await drive.files.create({
-                resource: {
-                    name: DATE + '.gzip',
-                    parents: [ID_OF_THE_FOLDER]
-                },
-                media: {
-                    mimeType: 'test/gzip',
-                    body: fs.createReadStream(ARCHIVE_PATH),
-                },
-            });
-            console.log('creates ', created.data);
-        } else {
-            let updated = await drive.files.update({
-                fileId: obj.id,
-                resource: {
-                    name: DATE + '.gzip',
-                },
-                media: {
-                    mimeType: 'test/gzip',
-                    body: fs.createReadStream(ARCHIVE_PATH),
-                }
-            })
-            console.log('updates ', updated.data);
-        }
     } catch (error) {
         console.log(error);
     }
