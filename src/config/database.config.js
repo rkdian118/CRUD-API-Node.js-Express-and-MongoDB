@@ -1,3 +1,7 @@
+
+
 module.exports = {
-    url: 'mongodb://'+process.env.mongo_host+':'+process.env.mongo_port+'/easy-notes'
+    url: 'mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
 }
+
+//mongodump --db=test --archive==./backup.gzip --gzip

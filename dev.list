@@ -1,3 +1,0 @@
-mongo_host=10.0.0.8
-mongo_port=27017
-node_port=8080

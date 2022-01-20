@@ -4,7 +4,7 @@
   "description": "Node-Express-Crud",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon ./server.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,18 @@
   "homepage": "https://github.com/badrinathpathak/Node-Express-Crud#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "child_process": "^1.0.2",
+    "child-process": "^1.0.2",
+    "cron": "^1.8.2",
     "express": "^4.17.1",
-    "mongoose": "^5.7.11"
+    "googleapis": "^92.0.0",
+    "lodash": "^4.17.21",
+    "mongodb-backup": "^1.6.9",
+    "mongoose": "^5.7.11",
+    "node-cron": "^3.0.0",
+    "node-fs": "^0.1.7",
+    "nodemon": "^2.0.15",
+    "path": "^0.12.7",
+    "sys": "^0.0.1"
   }
 }
