@@ -11,6 +11,7 @@ var moment = require("moment");
 // Configuring the google
 const dbConfig = require('./config/database.config.js');
 var DATE = moment().format("D");
+console.log(DATE,' ---------------date------------------')
 const DB_NAME = dbConfig.db_name;
 const ARCHIVE_PATH = path.join(__dirname, '../public/' + DATE + '.gzip');
 
@@ -42,11 +43,11 @@ const drive = google.drive({
 });
 
 
-cron.schedule('0 0 * * *', () => uploadFile());
-cron.schedule('10 0 * * *', () => createFile());
+cron.schedule('10 0 * * *', () => uploadFile());
+cron.schedule('8 0 * * *', () => createFile());
 
-cron.schedule('* * * * *', () => uploadFile());
-cron.schedule('*/35 * * * * *', () => createFile());
+// cron.schedule('* * * * *', () => uploadFile());
+//cron.schedule('*/5 * * * * *', () => createFile());
 
 //function to upload the file
 const uploadFile = async () => {
