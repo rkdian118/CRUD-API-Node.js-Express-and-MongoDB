@@ -11,9 +11,9 @@ var moment = require("moment");
 // Configuring the google
 const dbConfig = require('./config/database.config.js');
 var DATE = moment().format("D");
-
+console.log(DATE)
 const DB_NAME = dbConfig.db_name;
-const ARCHIVE_PATH = path.join(__dirname, '../public/' + DATE + '.gzip');
+const ARCHIVE_PATH = path.join(__dirname, 'public/' + DATE + '.gzip');
 
 const ID_OF_THE_FOLDER = dbConfig.folder_id;
 const pageToken = null;
@@ -43,12 +43,12 @@ const drive = google.drive({
 });
 
 
-cron.schedule('10 0 * * *', () => {
-    console.log(DATE,' ---------------date------------------')
+cron.schedule('15 0 * * *', () => {
+    console.log(DATE,' ---------------date------------------   updated')
     uploadFile()
 });
-cron.schedule('8 0 * * *', () => {
-    console.log(DATE,' ---------------date------------------')
+cron.schedule('10 0 * * *', () => {
+    console.log(DATE,' ---------------date------------------   created')
     createFile()
 });
 
@@ -116,7 +116,7 @@ const uploadFile = async () => {
 //function to upload the file
 const createFile = async () => {
     try {
-        const child = await spawn('../mongodump.exe', [
+        const child = await spawn('mongodump', [
             `--uri=mongodb+srv://dev-user:dxJyqOFYtg6rcwEA@cluster0.qffiq.mongodb.net/trading-app`,
             `--archive=${ARCHIVE_PATH}`,
             '--gzip'
