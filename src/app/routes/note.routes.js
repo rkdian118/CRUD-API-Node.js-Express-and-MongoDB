@@ -17,4 +17,6 @@ module.exports = (app) => {
     app.delete('/notes/:noteId', notes.delete);
 
     app.post('/notes/sentiment', notes.getSentiment)
+
+    app.post('/notes/sentimentwink', notes.getSents);
 }

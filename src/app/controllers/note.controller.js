@@ -1,5 +1,7 @@
 const Note = require('../models/note.model.js');
 const aposToLexFrom = require('apos-to-lex-form');
+
+var sentiment = require('wink-sentiment');
 const {
     WordTokenizer,
     PorterStemmer,
@@ -135,7 +137,7 @@ exports.delete = (req, res) => {
 };
 
 // Find a single note with a noteId
-exports.getSentiment = async (req, res, str) => {
+exports.getSentiment = async (req, res) => {
 
     try {
         const lexed = await aposToLexFrom(req.body.str).toLowerCase().replace(/[^a-zA-Z\s]+/g, ""); {
@@ -157,4 +159,18 @@ exports.getSentiment = async (req, res, str) => {
             err: err.message
         });
     }
+};
+
+// Find a single note with a noteId
+exports.getSents = async (req, res) => {
+    const str = req.body.str
+    try {
+        let analyze = sentiment(str)
+        return res.send(analyze)
+
+} catch (err) {
+    return res.status(500).send({
+        err: err.message
+    });
+}
 };
