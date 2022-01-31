@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 require('./googleDrive')
-require('./sentiment')
 // create express app
 const app = express();
 
