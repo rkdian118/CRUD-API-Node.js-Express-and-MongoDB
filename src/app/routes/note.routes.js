@@ -19,4 +19,6 @@ module.exports = (app) => {
     app.post('/notes/sentiment', notes.getSentiment)
 
     app.post('/notes/sentimentwink', notes.getSents);
+
+    app.post('/notes/analyze', notes.getAnalysis)
 }

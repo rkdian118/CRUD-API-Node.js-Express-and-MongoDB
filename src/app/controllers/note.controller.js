@@ -1,5 +1,6 @@
 const Note = require('../models/note.model.js');
 const aposToLexFrom = require('apos-to-lex-form');
+const MonkeyLearn = require('monkeylearn')
 
 var sentiment = require('wink-sentiment');
 const {
@@ -148,11 +149,9 @@ exports.getSentiment = async (req, res) => {
 
             const stopWordsRemoved = stopWord.removeStopwords(fixedSpelling)
 
-            console.log(stopWordsRemoved)
-
             const analyze = analyzer.getSentiment(stopWordsRemoved);
 
-            return res.json(analyze)
+            return res.json({analysis: analyze})
         }
     } catch (err) {
         return res.status(500).send({
@@ -168,9 +167,26 @@ exports.getSents = async (req, res) => {
         let analyze = sentiment(str)
         return res.send(analyze)
 
-} catch (err) {
-    return res.status(500).send({
-        err: err.message
-    });
-}
+    } catch (err) {
+        return res.status(500).send({
+            err: err.message
+        });
+    }
+};
+
+// Find a single note with a noteId
+exports.getAnalysis = async (req, res) => {
+    const str = req.body.str
+    try {
+        const ml = new MonkeyLearn('1bda93fb9e954fe05feae06a91ce176230dea0b3')
+        let model_id = 'cl_pi3C7JiL'
+        let data =   [str]
+        ml.classifiers.classify(model_id, data).then(response => {
+            return res.send(response.body[0].classifications)
+        })
+    } catch (err) {
+        return res.status(500).send({
+            err: err.message
+        });
+    }
 };
